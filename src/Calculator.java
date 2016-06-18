@@ -3,10 +3,7 @@ import java.awt.event.*;
 import javax.swing.*;
 
 public class Calculator extends JFrame implements ActionListener {
-	// 이 줄은 별 의미 없음.
-	// JFrame을 상속받았을 때 나오는 경고를 없애기 위함
-	public static final long serialVersionUID = 0L;
-	
+		
 	// 멤버 변수 선언
 	public JTextField text;
 	public boolean mode = false;
@@ -98,11 +95,87 @@ public class Calculator extends JFrame implements ActionListener {
 		new Calculator();
 	}
 
-	@Override
-	public void actionPerformed(ActionEvent arg0) {
-		// TODO Auto-generated method stub
+
+	public String cal() {
+
+		String result = "";
+		if(operator.equals("+")) {
+			operand1 += operand2;
+			result = operand1 + "";
+		} else if(operator == "-") {
+			operand1 -= operand2;
+			result = operand1 + "";
+		} else if(operator == "*") {
+			operand1 *= operand2;
+			result = operand1 + "";
+		} else if(operator == "/") {
+			if (operand2 != 0) {
+				operand1 /= operand2;
+				result = operand1 + "";
+			} else {
+				result = "No";
+			}
+		}
 		
+		return result;
 	}
 	
+	public void cal(String op) {
+		// 입력받은 숫자가 없으면 아무 일도 하지 않음
+		if (text.getText().equals("") || text.getText() == null)
+			return;
+		
+		if (operator.equals("")) {
+			// 계산을 처음 할 때
+			operand1 = Double.parseDouble(text.getText());
+			operator = op;
+			text.setText("");
+		} else {
+			// 연속 계산
+			operand2 = Double.parseDouble(text.getText());
+			text.setText(cal());
+			operator = op;
+			mode = true;
+		}
+	}
 	
+	public void actionPerformed(ActionEvent ae) {
+		String cmd = ae.getActionCommand();
+		if(cmd.equals("+") || cmd.equals("-") || cmd.equals("*") || cmd.equals("/")) {
+			// 연산자 처리
+			cal(cmd);
+		} else if (cmd.equals("=")) {
+			// 연산자가 지정이 안되어 있으면 아무 일도 안한다.
+			if (operator.equals(""))
+				return;
+			
+			// 계산 결과 처리
+			operand2 = Double.parseDouble(text.getText());			
+			text.setText(cal());
+
+			// 다음 계산을 위한 초기화
+			operand1 = 0;
+			operand2 = 0;
+			operator = "";			
+			mode = true;
+		} else if (cmd.equals("C")) {
+			// 클리어
+			operand1 = 0;
+			operand2 = 0;
+			operator = "";
+			text.setText("0");
+		} else {
+			// 숫자 처리
+			if (mode == true) {
+				mode = false;
+				text.setText(cmd);
+			} else  {
+				if (text.getText().equals("0")) {
+					text.setText(cmd);
+				} else {
+					text.setText(text.getText() + cmd);
+				}
+			}
+		}
+	}
 }
